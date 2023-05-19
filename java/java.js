@@ -1,7 +1,7 @@
 //crear variables 
 
 const formulario = document.querySelector(".agregar-gastos");
-const listagasto = document.querySelector(".gastos ul");
+const listagasto = document.querySelector("#gastos ul");
 //eventos
 
 
@@ -9,12 +9,14 @@ function cargarpagina()
 {
      document.addEventListener("DOMContentLoaded", preguntar);
      formulario.addEventListener('submit',agregarGasto);
+     listagasto.addEventListener('click',eliminarGasto)
 }
 
 cargarpagina()
 //clases
 class Presupuesto
 {
+    
  constructor(presupuesto)
  {
     this.presupuesto = Number(presupuesto);
@@ -26,14 +28,14 @@ class Presupuesto
         this.gastos = [...this.gastos,gasto]
         this.dinerorestante()
     };
-    eliminargasto()
+    eliminargasto(id)
     {
-        const gastado = this.gasto.filter(gasto => gasto.id.toString()!== id);
+        const gastado = this.gastos.filter(gasto => gasto.id.toString()!== id);
         this.dinerorestante();
     }
     dinerorestante(){
-        const gastado = this.gasto.reduce((total,restate)=> total + gasto.Valor,0);
-        this.disponible = this.presupuesto=gastado;
+        const gastado = this.gastos.reduce((total, gasto) => total + gasto.Valor, 0);
+        this.disponible = this.presupuesto - gastado;
     }
 };
 class interfaz 
@@ -66,20 +68,70 @@ class interfaz
         // se inserte en DOM
 
         document.querySelector(".contenido1").insertBefore(divmensaje,formulario);
+
+        setTimeout(() => {
+            divmensaje.remove();
+          }, 3000);
         
     }
-    agergarlistadogasto(gasto)
+    agergarlistadogasto(gastos)
     {   
+        this.limpiar();
         gastos.forEach(gasto => { 
-            const{Nombre,id,Valor}=gasto;
+            const{Nombre,Valor,id}= gasto;
             const nuevoGasto = document.createElement('li');
-            nuevoGasto = 'list-group-item d-flex justify-content-between aling-item-center';
-            nuevoGasto.dataset.id=id;
-            nuevoGasto.innerHTML=`${Nombre}<span class="badge badge-primary badge-pill"> ${Valor}</span>`;
-        });
+            nuevoGasto.className = 'list-group-item d-flex justify-content-between aling-item-center';
+            nuevoGasto.dataset.id = id;
+            nuevoGasto.innerHTML=`${Nombre}<span class="badge  badge-pill"> ${Valor}</span>`
+            //boton borrar
+
+            const btnborrar = document.createElement('button');
+
+            btnborrar.classList.add('btn', 'btn-danger', 'borrar-gasto');
+            
+            btnborrar.textContent='borrar';
+
+            nuevoGasto.appendChild(btnborrar);
+
+            //insertart gasto
+
+            listagasto.appendChild(nuevoGasto);
         
+        
+        });
+        //crear presupuesto
+
+        
+
+         
+        
+
+
+        
+    }
+
+    actualizarRestante(restante) {
+        document.querySelector('#restante').textContent = restante;
+      }
+comprobarPresupuesto(presupuestoObj){
+
+    const{presupuesto,restante} = presupuestoObj;
+
+    const restanteDiv = document.querySelector('#restante');
+
+    console.log(restanteDiv);
+    console.log(presupuesto);
+}
+
+limpiar(){
+    while(listagasto.fristChild){
+        listagasto.removeChild(listagasto.fristChild);
     }
 }
+
+};
+
+
 let presupuesto;
 const inte = new interfaz();
 //funciones
@@ -113,6 +165,29 @@ function agregarGasto(e)
         presupuesto.nuevoGasto(gasto);
         inte.imprimiralerta("correcto","es valido")
         const {gastos} = presupuesto;
-        inte.gastolistado(gasto);
+        inte.agergarlistadogasto([gasto]);
+
+        //comprobar
+
+        inte.comprobarPresupuesto(presupuesto);
+
+        const{restante}=presupuesto;
+
+        inte.actualizarRestante(restante);
+
+        formulario.reset();
+
     }
 }
+function eliminarGasto(e) {
+    if (e.target.classList.contains("borrar-gasto")) {
+      const { id } = e.target.parentElement.dataset;
+      presupuesto.eliminargasto(id);
+      inte.comprobarPresupuesto(presupuesto);
+  
+      const { restante } = presupuesto;
+      inte.actualizarRestante(restante);
+  
+      e.target.parentElement.remove();
+    }
+  };

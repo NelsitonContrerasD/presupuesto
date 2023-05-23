@@ -13,35 +13,30 @@ cargarPagina();
 
 // Clases
 class Presupuesto {
-  constructor(presupuesto) 
-  {
+  constructor(presupuesto) {
     this.presupuesto = Number(presupuesto);
     this.disponible = Number(presupuesto);
     this.gastos = [];
   }
 
-  nuevoGasto(gasto) 
-  {
+  nuevoGasto(gasto) {
     this.gastos = [...this.gastos, gasto];
     this.dineroRestante();
   }
 
-  eliminarGasto(id) 
-  {
+  eliminarGasto(id) {
     this.gastos = this.gastos.filter((gasto) => gasto.id.toString() !== id);
     this.dineroRestante();
   }
 
-  dineroRestante() 
-  {
+  dineroRestante() {
     const gastado = this.gastos.reduce((total, gasto) => total + gasto.valor, 0);
     this.disponible = this.presupuesto - gastado;
   }
 }
 
 class Interfaz {
-  insertarPresupuesto(valor) 
-  {
+  insertarPresupuesto(valor) {
     const { presupuesto, disponible } = valor;
     document.querySelector("#total").textContent = presupuesto;
     document.querySelector("#restante").textContent = disponible;
@@ -50,17 +45,17 @@ class Interfaz {
   imprimirAlerta(mensaje, tipo) {
     const divMensaje = document.createElement("div");
     divMensaje.classList.add("text-center", "alert");
-    if (tipo === "error") 
-    {
+    if (tipo === "error") {
       divMensaje.classList.add("alert-danger");
-    } else if (tipo === "bien") 
-    {
+    } else if (tipo === "bien") {
       divMensaje.classList.add("alert-success");
     }
 
     divMensaje.textContent = mensaje;
 
-    document.querySelector(".contenido1").insertBefore(divMensaje, formulario);
+    document
+      .querySelector(".contenido1")
+      .insertBefore(divMensaje, formulario);
 
     setTimeout(() => {
       divMensaje.remove();
@@ -72,7 +67,8 @@ class Interfaz {
     gastos.forEach(gasto => {
       const { nombre, valor, id } = gasto;
       const nuevoGasto = document.createElement("li");
-      nuevoGasto.className = "list-group-item d-flex justify-content-between aling-item-center";
+      nuevoGasto.className =
+        "list-group-item d-flex justify-content-between aling-item-center";
       nuevoGasto.dataset.id = id;
       nuevoGasto.innerHTML = `${nombre}<span class="badge badge-pill">${valor}</span>`;
 
@@ -85,13 +81,11 @@ class Interfaz {
     });
   }
 
-  actualizarDineroRestante(restante) 
-  {
+  actualizarDineroRestante(restante) {
     document.querySelector("#restante").textContent = restante;
   }
 
-  comprobarPresupuesto(presupuestoObj) 
-  {
+  comprobarPresupuesto(presupuestoObj) {
     const { presupuesto, disponible } = presupuestoObj;
     const restanteDiv = document.querySelector("#restante");
 
@@ -113,8 +107,12 @@ const interfaz = new Interfaz();
 function preguntar() {
   const presupuestoUsuario = prompt("Ingrese su presupuesto");
 
-  if (presupuestoUsuario === "" || presupuestoUsuario === null || isNaN(presupuestoUsuario) || presupuestoUsuario <= 0 ) 
-  {
+  if (
+    presupuestoUsuario === "" ||
+    presupuestoUsuario === null ||
+    isNaN(presupuestoUsuario) ||
+    presupuestoUsuario <= 0
+  ) {
     window.location.reload();
   }
 
@@ -128,19 +126,16 @@ function agregarGasto(e) {
   const nombre = document.querySelector("#gasto").value;
   const valor = Number(document.querySelector("#cantidad").value);
 
-  if (nombre === "" || valor === "") 
-  {
+  if (nombre === "" || valor === "") {
     interfaz.imprimirAlerta("Los campos son obligatorios", "error");
-  } else if (valor <= 0 || isNaN(valor)) 
-  {
+  } else if (valor <= 0 || isNaN(valor)) {
     interfaz.imprimirAlerta("Cantidad no válida", "error");
-  } else 
-  {
+  } else {
     interfaz.imprimirAlerta("Se agregaron los valores correctamente", "bien");
 
     const gasto = { nombre, valor, id: Date.now() };
     presupuesto.nuevoGasto(gasto);
-    interfaz.agregarListaGasto(presupuesto.gastos);
+    interfaz.agregarListaGasto([gasto]);
 
     const { disponible } = presupuesto;
     interfaz.actualizarDineroRestante(disponible);
@@ -151,8 +146,7 @@ function agregarGasto(e) {
 }
 
 function eliminarGasto(e) {
-  if (e.target.classList.contains("borrar-gasto")) 
-  {
+  if (e.target.classList.contains("borrar-gasto")) {
     const { id } = e.target.parentElement.dataset;
     presupuesto.eliminarGasto(id);
     interfaz.actualizarDineroRestante(presupuesto.disponible);
